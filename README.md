@@ -50,4 +50,6 @@ cat wtf.dat
 
 # Things to rule out
 
-- I'm using the gocloud.dev server package, that might be causing this.
+## gocloud.dev server package
+
+Ruled out. Also fails with a standard http.ListenAndServe

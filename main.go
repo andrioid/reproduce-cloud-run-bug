@@ -7,10 +7,6 @@ import (
 	"net/url"
 	"os"
 	"strconv"
-
-	"go.opencensus.io/trace"
-	"gocloud.dev/server"
-	"gocloud.dev/server/sdserver"
 )
 
 type config struct {
@@ -63,27 +59,6 @@ func listenVanilla() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func listenCloud() {
-	args := parseConfig()
-	// Enable tracing for a small percentage of our requests by default
-	var samplingPolicy trace.Sampler
-	var exporter trace.Exporter
-	samplingPolicy = trace.ProbabilitySampler(0.05)
-
-	options := &server.Options{
-		RequestLogger:         sdserver.NewRequestLogger(),
-		TraceExporter:         exporter,
-		DefaultSamplingPolicy: samplingPolicy,
-		Driver:                &server.DefaultDriver{},
-	}
-	srv := server.New(http.DefaultServeMux, options)
-
-	http.HandleFunc("/", Handler)
-
-	fmt.Printf("Cloud listening on port %d...\n", args.port)
-	log.Fatal(srv.ListenAndServe(fmt.Sprintf(":%d", args.port)))
 }
 
 func main() {
