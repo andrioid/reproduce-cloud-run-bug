@@ -22,7 +22,7 @@ You can skip this and just follow the next step from our service. This roughly f
 
 ```
 gcloud builds submit --tag eu.gcr.io/redia-internal/reproduce-cloud-run-bug
-gcloud beta run deploy --image eu.gcr.io/redia-internal/reproduce-clound-run-bug --platform managed
+gcloud beta run deploy --image eu.gcr.io/redia-internal/reproduce-cloud-run-bug --platform managed
 ```
 
 # Reproducing

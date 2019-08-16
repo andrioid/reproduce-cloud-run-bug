@@ -27,14 +27,45 @@ func parseConfig() config {
 	}
 }
 
-type PooWriter struct{}
+// Handler just writes some bytes to a file
+func Handler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "inline; filename=\"test.dat\"")
 
-func (p *PooWriter) Write(b []byte) (int, error) {
-	return 0, nil
+	u, err := url.Parse(r.RequestURI)
+	if err != nil {
+		http.Error(w, "failed to parse query", http.StatusInternalServerError)
+	}
+	size, err := strconv.Atoi(u.Query().Get("size"))
+	if err != nil {
+		http.Error(w, "failed to parse size", http.StatusInternalServerError)
+	}
+	if size == 0 {
+		size = 100
+	}
+
+	// TODO: Replace "A" with poop emoji and divide by 4
+	for i := 0; i < size*1024*1024; i++ {
+		w.Write([]byte("A"))
+	}
+	return
 }
 
-func main() {
+func listenVanilla() {
+	args := parseConfig()
+	fmt.Printf("Vanilla listening on port %d...\n", args.port)
+	http.HandleFunc("/", Handler)
+	err := http.ListenAndServe(
+		fmt.Sprintf(":%d", args.port),
+		nil,
+	)
 
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func listenCloud() {
 	args := parseConfig()
 	// Enable tracing for a small percentage of our requests by default
 	var samplingPolicy trace.Sampler
@@ -49,30 +80,12 @@ func main() {
 	}
 	srv := server.New(http.DefaultServeMux, options)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/octet-stream")
-		w.Header().Set("Content-Disposition", "inline; filename=\"test.dat\"")
+	http.HandleFunc("/", Handler)
 
-		u, err := url.Parse(r.RequestURI)
-		if err != nil {
-			http.Error(w, "failed to parse query", http.StatusInternalServerError)
-		}
-		size, err := strconv.Atoi(u.Query().Get("size"))
-		if err != nil {
-			http.Error(w, "failed to parse size", http.StatusInternalServerError)
-		}
-		if size == 0 {
-			size = 100
-		}
-
-		for i := 0; i < size*1024*1024; i++ {
-			w.Write([]byte("A"))
-		}
-		return
-
-		//fmt.Fprintf(w, "Hello %d", size)
-	})
-
-	fmt.Printf("Listening on port %d...\n", args.port)
+	fmt.Printf("Cloud listening on port %d...\n", args.port)
 	log.Fatal(srv.ListenAndServe(fmt.Sprintf(":%d", args.port)))
+}
+
+func main() {
+	listenVanilla()
 }
