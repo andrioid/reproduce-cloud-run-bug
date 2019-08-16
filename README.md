@@ -14,8 +14,6 @@ No rocket science. We set the headers and then manually write "A" to the `http.R
 
 `https://servicelink/?size=100` will download a 100M file.
 
-I used the server and tracing packages from gocloud.dev as I did with my other service.
-
 # If you want to build and run
 
 You can skip this and just follow the next step from our service. This roughly follows the cloud-run quickstart. Note: I will remove the service in a few days.
